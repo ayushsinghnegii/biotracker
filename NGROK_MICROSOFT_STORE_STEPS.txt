@@ -1,0 +1,24 @@
+BioTracker + ngrok Microsoft Store Setup
+
+1. Open CMD anywhere and check:
+   ngrok version
+
+2. If version appears, ngrok is installed correctly. You do not need to find any folder.
+
+3. First time only, add your token:
+   ngrok config add-authtoken YOUR_TOKEN_FROM_NGROK_DASHBOARD
+
+4. Run project:
+   START_BIOTRACKER.bat
+
+5. Website opens at:
+   http://127.0.0.1:5000
+
+6. Click Share near Login. You will see public ngrok link, QR code, Copy Link and WhatsApp share button.
+
+7. Friend can open that ngrok link from any phone/laptop. Camera/live scanner requires HTTPS, so ngrok link is better than Same-Wi-Fi HTTP. Same-Wi-Fi may allow image upload, but live camera can be blocked by browser security.
+
+8. Admin panel:
+   your-ngrok-link/admin.html
+
+Keep both black windows open: Flask backend and ngrok tunnel.

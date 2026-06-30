@@ -1,0 +1,493 @@
+from flask import Flask, request, jsonify, send_from_directory
+import os
+import traceback
+import requests
+import threading
+import time
+import webbrowser
+import socket
+import sqlite3
+import hashlib
+import uuid
+from datetime import datetime
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PLANTNET_API_KEY = os.environ.get("PLANTNET_API_KEY", "2b10lhR4QtCn9O1aQAzSqDTV").strip()
+PLANTNET_BASE = "https://my-api.plantnet.org/v2/identify/all"
+
+DB_PATH = os.path.join(BASE_DIR, "biotracker.db")
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def hash_password(password):
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+def init_db():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fullname TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            organization TEXT DEFAULT '',
+            role TEXT DEFAULT 'user',
+            created_at TEXT NOT NULL
+        )
+    """)
+    existing_cols = [r[1] for r in cur.execute("PRAGMA table_info(users)").fetchall()]
+    if "role" not in existing_cols:
+        cur.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS scan_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT,
+            scan_type TEXT NOT NULL,
+            species_name TEXT NOT NULL,
+            scientific_name TEXT,
+            category TEXT,
+            confidence TEXT,
+            file_name TEXT,
+            created_at TEXT NOT NULL
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS contact_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            message TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    """)
+    admin_email = "admin@biotracker.com"
+    admin_password = "admin123"
+    admin = cur.execute("SELECT id FROM users WHERE email=?", (admin_email,)).fetchone()
+    if not admin:
+        cur.execute(
+            "INSERT INTO users(fullname,email,password_hash,organization,role,created_at) VALUES(?,?,?,?,?,?)",
+            ("BioTracker Admin", admin_email, hash_password(admin_password), "Admin Panel", "admin", datetime.now().isoformat(timespec="seconds"))
+        )
+    else:
+        cur.execute("UPDATE users SET role='admin' WHERE email=?", (admin_email,))
+    conn.commit()
+    conn.close()
+
+def row_to_dict(row):
+    return {k: row[k] for k in row.keys()}
+
+init_db()
+
+app = Flask(__name__, static_folder=BASE_DIR, static_url_path="")
+app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return response
+
+@app.route("/")
+def home():
+    return send_from_directory(BASE_DIR, "index.html")
+
+@app.route("/admin")
+def admin_home():
+    return send_from_directory(BASE_DIR, "admin.html")
+
+@app.route("/admin.html")
+def admin_html():
+    return send_from_directory(BASE_DIR, "admin.html")
+
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({
+        "ok": True,
+        "message": "BioTracker backend is running",
+        "plantnet_key_loaded": bool(PLANTNET_API_KEY),
+        "plantnet_key_preview": (PLANTNET_API_KEY[:4] + "..." + PLANTNET_API_KEY[-4:]) if len(PLANTNET_API_KEY) > 8 else "missing"
+    })
+
+
+@app.route("/api/register", methods=["POST"])
+def api_register():
+    data = request.get_json(silent=True) or {}
+    fullname = (data.get("fullname") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+    if not fullname or not email or not password:
+        return jsonify({"error": "Please fill all fields."}), 400
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters."}), 400
+    try:
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO users(fullname,email,password_hash,role,created_at) VALUES(?,?,?,?,?)",
+            (fullname, email, hash_password(password), "user", datetime.now().isoformat(timespec="seconds"))
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"ok": True, "message": "Account created successfully."})
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Email is already registered."}), 409
+
+@app.route("/api/login", methods=["POST"])
+def api_login():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+    conn = get_db()
+    row = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+    conn.close()
+    if not row or row["password_hash"] != hash_password(password):
+        return jsonify({"error": "Invalid Email or Password"}), 401
+    return jsonify({
+        "ok": True,
+        "user": {
+            "fullname": row["fullname"],
+            "email": row["email"],
+            "organization": row["organization"] or "",
+            "role": row["role"] or "user"
+        }
+    })
+
+@app.route("/api/profile", methods=["POST"])
+def api_profile():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    fullname = (data.get("fullname") or "").strip()
+    organization = (data.get("organization") or "").strip()
+    password = data.get("password") or ""
+    if not email or not fullname:
+        return jsonify({"error": "Name and email required."}), 400
+    conn = get_db()
+    if password:
+        conn.execute("UPDATE users SET fullname=?, organization=?, password_hash=? WHERE email=?",
+                     (fullname, organization, hash_password(password), email))
+    else:
+        conn.execute("UPDATE users SET fullname=?, organization=? WHERE email=?",
+                     (fullname, organization, email))
+    conn.commit()
+    updated = conn.execute("SELECT fullname,email,organization,role FROM users WHERE email=?", (email,)).fetchone()
+    conn.close()
+    if not updated:
+        return jsonify({"error": "User not found."}), 404
+    return jsonify({"ok": True, "user": row_to_dict(updated)})
+
+@app.route("/api/save-scan", methods=["POST"])
+def api_save_scan():
+    data = request.get_json(silent=True) or {}
+    species = (data.get("species_name") or "Uploaded Image").strip()
+    scan_type = (data.get("scan_type") or "scan").strip()
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO scan_history(user_email,scan_type,species_name,scientific_name,category,confidence,file_name,created_at)
+        VALUES(?,?,?,?,?,?,?,?)
+    """, (
+        (data.get("user_email") or "guest").strip().lower(), scan_type, species,
+        (data.get("scientific_name") or "").strip(), (data.get("category") or "").strip(),
+        (data.get("confidence") or "").strip(), (data.get("file_name") or "").strip(),
+        datetime.now().isoformat(timespec="seconds")
+    ))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
+@app.route("/api/history", methods=["GET"])
+def api_history():
+    email = (request.args.get("email") or "guest").strip().lower()
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT id, scan_type, species_name, scientific_name, category, confidence, file_name, created_at
+        FROM scan_history
+        WHERE user_email=?
+        ORDER BY id DESC
+        LIMIT 50
+    """, (email,)).fetchall()
+    conn.close()
+    return jsonify({"ok": True, "items": [row_to_dict(r) for r in rows]})
+
+@app.route("/api/stats", methods=["GET"])
+def api_stats():
+    email = (request.args.get("email") or "guest").strip().lower()
+    conn = get_db()
+    total = conn.execute("SELECT COUNT(*) AS c FROM scan_history WHERE user_email=?", (email,)).fetchone()["c"]
+    plants = conn.execute("SELECT COUNT(*) AS c FROM scan_history WHERE user_email=? AND lower(category) LIKE '%plant%'", (email,)).fetchone()["c"]
+    animals = conn.execute("SELECT COUNT(*) AS c FROM scan_history WHERE user_email=? AND lower(category) LIKE '%animal%'", (email,)).fetchone()["c"]
+    messages = conn.execute("SELECT COUNT(*) AS c FROM contact_messages").fetchone()["c"]
+    conn.close()
+    return jsonify({"ok": True, "total_scans": total, "plant_scans": plants, "animal_scans": animals, "contact_messages": messages})
+
+@app.route("/api/contact", methods=["POST"])
+def api_contact():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    message = (data.get("message") or "").strip()
+    if not name or not email or not message:
+        return jsonify({"error": "Please fill all contact fields."}), 400
+    conn = get_db()
+    conn.execute("INSERT INTO contact_messages(name,email,message,created_at) VALUES(?,?,?,?)",
+                 (name, email, message, datetime.now().isoformat(timespec="seconds")))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "message": "Message saved in database."})
+
+
+
+def is_admin_email(email):
+    email = (email or "").strip().lower()
+    if not email:
+        return False
+    conn = get_db()
+    row = conn.execute("SELECT role FROM users WHERE email=?", (email,)).fetchone()
+    conn.close()
+    return bool(row and (row["role"] == "admin"))
+
+@app.route("/api/admin/overview", methods=["GET"])
+def api_admin_overview():
+    admin_email = (request.args.get("email") or "").strip().lower()
+    if not is_admin_email(admin_email):
+        return jsonify({"error": "Admin access required."}), 403
+
+    conn = get_db()
+    total_users = conn.execute("SELECT COUNT(*) AS c FROM users").fetchone()["c"]
+    total_scans = conn.execute("SELECT COUNT(*) AS c FROM scan_history").fetchone()["c"]
+    plant_scans = conn.execute("SELECT COUNT(*) AS c FROM scan_history WHERE lower(category) LIKE '%plant%'").fetchone()["c"]
+    animal_scans = conn.execute("SELECT COUNT(*) AS c FROM scan_history WHERE lower(category) LIKE '%animal%'").fetchone()["c"]
+    total_messages = conn.execute("SELECT COUNT(*) AS c FROM contact_messages").fetchone()["c"]
+
+    users = conn.execute("""
+        SELECT id, fullname, email, organization, role, created_at
+        FROM users
+        ORDER BY id DESC
+        LIMIT 25
+    """).fetchall()
+    scans = conn.execute("""
+        SELECT id, user_email, scan_type, species_name, scientific_name, category, confidence, file_name, created_at
+        FROM scan_history
+        ORDER BY id DESC
+        LIMIT 25
+    """).fetchall()
+    messages = conn.execute("""
+        SELECT id, name, email, message, created_at
+        FROM contact_messages
+        ORDER BY id DESC
+        LIMIT 25
+    """).fetchall()
+    top_species = conn.execute("""
+        SELECT species_name, category, COUNT(*) AS count
+        FROM scan_history
+        GROUP BY species_name, category
+        ORDER BY count DESC
+        LIMIT 10
+    """).fetchall()
+    conn.close()
+
+    return jsonify({
+        "ok": True,
+        "stats": {
+            "total_users": total_users,
+            "total_scans": total_scans,
+            "plant_scans": plant_scans,
+            "animal_scans": animal_scans,
+            "total_messages": total_messages
+        },
+        "users": [row_to_dict(r) for r in users],
+        "scans": [row_to_dict(r) for r in scans],
+        "messages": [row_to_dict(r) for r in messages],
+        "top_species": [row_to_dict(r) for r in top_species]
+    })
+
+@app.route("/api/admin/delete-user", methods=["POST"])
+def api_admin_delete_user():
+    data = request.get_json(silent=True) or {}
+    admin_email = (data.get("admin_email") or "").strip().lower()
+    target_email = (data.get("target_email") or "").strip().lower()
+    if not is_admin_email(admin_email):
+        return jsonify({"error": "Admin access required."}), 403
+    if not target_email or target_email == "admin@biotracker.com":
+        return jsonify({"error": "This user cannot be deleted."}), 400
+    conn = get_db()
+    conn.execute("DELETE FROM users WHERE email=? AND role!='admin'", (target_email,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "message": "User deleted."})
+
+
+@app.route("/api/admin/delete-scan", methods=["POST"])
+def api_admin_delete_scan():
+    data = request.get_json(silent=True) or {}
+    admin_email = (data.get("admin_email") or "").strip().lower()
+    scan_id = data.get("scan_id")
+    if not is_admin_email(admin_email):
+        return jsonify({"error": "Admin access required."}), 403
+    conn = get_db()
+    conn.execute("DELETE FROM scan_history WHERE id=?", (scan_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "message": "Scan record deleted."})
+
+@app.route("/api/admin/delete-message", methods=["POST"])
+def api_admin_delete_message():
+    data = request.get_json(silent=True) or {}
+    admin_email = (data.get("admin_email") or "").strip().lower()
+    message_id = data.get("message_id")
+    if not is_admin_email(admin_email):
+        return jsonify({"error": "Admin access required."}), 403
+    conn = get_db()
+    conn.execute("DELETE FROM contact_messages WHERE id=?", (message_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "message": "Message deleted."})
+
+def get_lan_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "YOUR-LAPTOP-IP"
+
+@app.route("/api/db-info", methods=["GET"])
+def api_db_info():
+    return jsonify({"ok": True, "database": DB_PATH, "message": "SQLite database connected"})
+
+@app.route("/api/identify-plant", methods=["OPTIONS"])
+def identify_plant_options():
+    return ("", 204)
+
+
+def call_plantnet(image_bytes, filename, mimetype, organ):
+    params = {
+        "api-key": PLANTNET_API_KEY,
+        "lang": "en",
+        "include-related-images": "false",
+        "no-reject": "true"
+    }
+    files = [("images", (filename, image_bytes, mimetype))]
+    data = [("organs", organ)]
+    response = requests.post(PLANTNET_BASE, params=params, files=files, data=data, timeout=45)
+    content_type = response.headers.get("content-type", "")
+    if "application/json" in content_type:
+        payload = response.json()
+    else:
+        payload = {"message": response.text[:800]}
+    return response.status_code, payload
+
+@app.route("/api/identify-plant", methods=["POST"])
+def identify_plant():
+    try:
+        if not PLANTNET_API_KEY:
+            return jsonify({"error": "PlantNet API key missing. Set PLANTNET_API_KEY in app.py or environment."}), 500
+
+        uploaded = request.files.get("image") or request.files.get("images")
+        if not uploaded:
+            return jsonify({"error": "No image received by backend. Please choose an image and click Analyze again."}), 400
+
+        image_bytes = uploaded.read()
+        if not image_bytes:
+            return jsonify({"error": "Uploaded image is empty. Try another JPG/PNG image."}), 400
+
+        filename = uploaded.filename or "plant-upload.jpg"
+        mimetype = (uploaded.mimetype or "image/jpeg").lower()
+        if mimetype == "image/jpg":
+            mimetype = "image/jpeg"
+        if mimetype not in ("image/jpeg", "image/png"):
+            return jsonify({"error": f"PlantNet accepts JPG/PNG only. Your file type was {mimetype}. Convert it to JPG and try again."}), 400
+
+        organs_to_try = ["flower", "leaf", "fruit", "bark", "habit"]
+        best_payload = None
+        best_score = -1.0
+        errors = []
+
+        for organ in organs_to_try:
+            status, payload = call_plantnet(image_bytes, filename, mimetype, organ)
+            if status >= 400:
+                msg = payload.get("message") or payload.get("error") or str(payload)
+                errors.append(f"{organ}: HTTP {status} - {msg}")
+                continue
+            results = payload.get("results") or []
+            if results:
+                score = float(results[0].get("score") or 0)
+                if score > best_score:
+                    best_score = score
+                    best_payload = payload
+                    best_payload["usedOrgan"] = organ
+
+        if best_payload and best_payload.get("results"):
+            return jsonify(best_payload)
+
+        if errors:
+            return jsonify({
+                "error": "PlantNet API request failed. " + " | ".join(errors[:2]),
+                "hint": "Check internet, API key quota, and run with run_project.bat / python app.py."
+            }), 502
+
+        return jsonify({"error": "PlantNet could not identify this plant. Use a clear close-up JPG/PNG of one flower or one leaf in good lighting."}), 422
+
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "PlantNet request timed out. Check internet and try again."}), 504
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"Backend could not connect to PlantNet: {e}"}), 502
+    except Exception as e:
+        print("PlantNet backend error:", traceback.format_exc())
+        return jsonify({"error": f"Backend error: {type(e).__name__}: {e}"}), 500
+
+
+@app.route("/api/share-link", methods=["GET"])
+def api_share_link():
+    """Return the public ngrok URL if the launcher has created one; otherwise return local URLs."""
+    share_file = os.path.join(BASE_DIR, "share_url.txt")
+    lan_ip = get_lan_ip()
+    public_url = ""
+    if os.path.exists(share_file):
+        try:
+            public_url = open(share_file, "r", encoding="utf-8").read().strip()
+        except Exception:
+            public_url = ""
+    if public_url and public_url.startswith("http"):
+        return jsonify({
+            "ok": True,
+            "mode": "public",
+            "url": public_url,
+            "admin_url": public_url.rstrip("/") + "/admin.html",
+            "message": "Public ngrok link is ready."
+        })
+    return jsonify({
+        "ok": True,
+        "mode": "local",
+        "url": "http://127.0.0.1:5000",
+        "lan_url": f"http://{lan_ip}:5000",
+        "admin_url": "http://127.0.0.1:5000/admin.html",
+        "message": "Public ngrok link not found. Start sharing with START_BIOTRACKER.bat after putting ngrok.exe in this folder or installing ngrok."
+    })
+
+@app.route("/<path:filename>")
+def static_files(filename):
+    return send_from_directory(BASE_DIR, filename)
+
+def open_browser_later():
+    time.sleep(1.5)
+    webbrowser.open("http://127.0.0.1:5000")
+
+if __name__ == "__main__":
+    lan_ip = get_lan_ip()
+    print("===========================================")
+    print(" BioTracker backend running")
+    print(" Your laptop URL: http://127.0.0.1:5000")
+    print(f" Same Wi-Fi mobile/other laptop URL: http://{lan_ip}:5000")
+    print(" Admin Panel: http://127.0.0.1:5000/admin.html")
+    print(" Keep this window open while using the app")
+    print(" Share link file: share_url.txt, if ngrok is running")
+    print("===========================================")
+    print("PlantNet key loaded:", bool(PLANTNET_API_KEY))
+    threading.Thread(target=open_browser_later, daemon=True).start()
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

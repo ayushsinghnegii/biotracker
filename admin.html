@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BioTracker AI | Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#07110d;--panel:#0d1b14;--card:#10281b;--card2:#f7fbf7;--green:#22c55e;--green2:#16a34a;--text:#ecfdf5;--muted:#9fb8aa;--line:rgba(255,255,255,.10);--danger:#ef4444;--blue:#38bdf8;--amber:#f59e0b}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif} body{min-height:100vh;background:radial-gradient(circle at top left,rgba(34,197,94,.28),transparent 35%),linear-gradient(135deg,#06100b 0%,#0b1b12 50%,#07110d 100%);color:var(--text)}
+    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.login-card{width:min(440px,100%);background:rgba(13,27,20,.86);border:1px solid var(--line);border-radius:28px;padding:34px;box-shadow:0 30px 90px rgba(0,0,0,.4);backdrop-filter:blur(20px)}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}.logo{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,var(--green),#86efac);display:grid;place-items:center;color:#052e16;font-weight:900}.brand h1{font-size:22px}.brand p{color:var(--muted);font-size:13px;margin-top:3px}.input{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:white;margin:8px 0 14px;outline:none}.input:focus{border-color:rgba(34,197,94,.65);box-shadow:0 0 0 4px rgba(34,197,94,.12)}
+    .btn{border:0;border-radius:14px;padding:13px 18px;font-weight:700;cursor:pointer;transition:.2s}.btn-primary{width:100%;background:linear-gradient(135deg,var(--green),var(--green2));color:#052e16}.btn:hover{transform:translateY(-1px)}.ghost{margin-top:12px;background:transparent;color:var(--muted);border:1px solid var(--line);width:100%}.msg{display:none;margin:12px 0;padding:12px;border-radius:12px;font-size:14px}.msg.error{display:block;background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.3);color:#fecaca}.msg.success{display:block;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.3);color:#bbf7d0}
+    .app{display:none;min-height:100vh}.sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:rgba(7,17,13,.88);border-right:1px solid var(--line);padding:22px;backdrop-filter:blur(18px)}.side-title{display:flex;align-items:center;gap:12px;margin-bottom:28px}.side-title h2{font-size:20px}.nav{display:grid;gap:10px}.nav button{text-align:left;background:transparent;border:1px solid transparent;color:var(--muted);padding:13px 14px;border-radius:14px;cursor:pointer;font-weight:700}.nav button.active,.nav button:hover{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.20);color:white}.main{margin-left:280px;padding:28px}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.topbar h1{font-size:30px;letter-spacing:-.04em}.topbar p{color:var(--muted);margin-top:6px}.pill{border:1px solid var(--line);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:999px;color:#d1fae5;font-size:13px}.logout{background:rgba(239,68,68,.12);color:#fecaca;border:1px solid rgba(239,68,68,.25)}
+    .grid{display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:16px;margin-bottom:22px}.stat{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 16px 40px rgba(0,0,0,.18)}.stat span{font-size:30px;font-weight:800;color:#86efac}.stat p{color:var(--muted);font-size:13px;margin-top:4px}.panel{display:none}.panel.active{display:block}.card{background:rgba(13,27,20,.72);border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:18px;box-shadow:0 18px 60px rgba(0,0,0,.18)}.card h3{margin-bottom:14px;font-size:18px}.table-wrap{overflow:auto;border-radius:16px;border:1px solid var(--line)}table{width:100%;border-collapse:collapse;min-width:760px;background:rgba(0,0,0,.12)}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}th{color:#bbf7d0;background:rgba(34,197,94,.08);font-weight:800}td{color:#dbece2}.role{padding:5px 10px;border-radius:999px;background:rgba(56,189,248,.12);color:#bae6fd;font-weight:800;font-size:12px}.role.admin{background:rgba(34,197,94,.14);color:#bbf7d0}.small-btn{padding:7px 10px;border-radius:10px;border:0;background:rgba(239,68,68,.14);color:#fecaca;font-weight:800;cursor:pointer}.refresh{background:rgba(34,197,94,.14);color:#bbf7d0;border:1px solid rgba(34,197,94,.22)}.top-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.species{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px;padding:14px}.species b{display:block;margin-bottom:5px}.species small{color:var(--muted)}.notice{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.22);color:#dff7ff;border-radius:18px;padding:16px;margin-bottom:18px;line-height:1.6}.copybox{margin-top:8px;display:flex;gap:10px;flex-wrap:wrap}.code{background:#03140b;border:1px solid var(--line);padding:10px 12px;border-radius:12px;color:#bbf7d0;font-family:monospace}.mobile-menu{display:none}.scan-photo{width:58px;height:58px;object-fit:cover;border-radius:14px;border:1px solid var(--line);box-shadow:0 10px 24px rgba(0,0,0,.25);cursor:pointer}.no-photo{width:58px;height:58px;border-radius:14px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px}.photo-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}.photo-modal.show{display:flex}.photo-box{background:#0b1220;border:1px solid var(--line);border-radius:22px;padding:16px;max-width:92vw;max-height:92vh}.photo-box img{max-width:86vw;max-height:76vh;border-radius:16px;display:block}.photo-box button{margin-top:12px;width:100%}
+    @media(max-width:900px){.sidebar{position:relative;width:auto;bottom:auto}.main{margin-left:0;padding:18px}.grid{grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.mobile-menu{display:block}.nav{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.grid{grid-template-columns:1fr}.nav{grid-template-columns:1fr}.login-card{padding:24px}.topbar h1{font-size:24px}}
+  </style>
+</head>
+<body>
+  <section class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="brand"><div class="logo">AI</div><div><h1>BioTracker Admin</h1><p>Management dashboard only — no scan/upload tools</p></div></div>
+      <div id="loginMsg" class="msg"></div>
+      <input class="input" id="email" placeholder="Admin email" value="admin@biotracker.com" />
+      <input class="input" id="password" type="password" placeholder="Password" value="admin123" />
+      <button class="btn btn-primary" onclick="adminLogin()">Login to Admin Panel</button>
+      <button class="btn ghost" onclick="location.href='/'">Open User Website</button>
+    </div>
+  </section>
+
+  <section class="app" id="app">
+    <aside class="sidebar">
+      <div class="side-title"><div class="logo">AI</div><div><h2>BioTracker AI</h2><p style="color:var(--muted);font-size:12px">Admin Control Center</p></div></div>
+      <div class="nav">
+        <button class="active" onclick="showPanel('overview',this)">Overview</button>
+        <button onclick="showPanel('users',this)">Manage Users</button>
+        <button onclick="showPanel('scans',this)">Scan Records</button>
+        <button onclick="showPanel('messages',this)">Messages</button>
+        <button onclick="showPanel('network',this)">Run on Mobile</button>
+        <button class="logout" onclick="logoutAdmin()">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div><h1>Admin Dashboard</h1><p id="adminText">Manage users, scans and support messages professionally.</p></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="pill" id="adminEmail"></span><button class="btn refresh" onclick="loadDashboard()">Refresh</button></div>
+      </div>
+      <div id="errorBox" class="msg"></div>
+
+      <section id="panel-overview" class="panel active">
+        <div class="grid">
+          <div class="stat"><span id="totalUsers">0</span><p>Total Users</p></div>
+          <div class="stat"><span id="totalScans">0</span><p>Total Scans</p></div>
+          <div class="stat"><span id="plantScans">0</span><p>Plant Scans</p></div>
+          <div class="stat"><span id="animalScans">0</span><p>Animal Scans</p></div>
+          <div class="stat"><span id="totalMessages">0</span><p>Messages</p></div>
+        </div>
+        <div class="card"><h3>Most Scanned Species</h3><div id="topSpecies" class="top-list"></div></div>
+      </section>
+
+      <section id="panel-users" class="panel">
+        <div class="card"><h3>Registered Users</h3><div class="table-wrap"><table id="usersTable"></table></div></div>
+      </section>
+
+      <section id="panel-scans" class="panel">
+        <div class="card"><h3>All Scan Records</h3><div class="table-wrap"><table id="scansTable"></table></div></div>
+      </section>
+
+      <section id="panel-messages" class="panel">
+        <div class="card"><h3>Contact Support Messages</h3><div class="table-wrap"><table id="messagesTable"></table></div></div>
+      </section>
+
+      <section id="panel-network" class="panel">
+        <div class="notice">
+          <b>Same Wi-Fi par mobile/other laptop me chalane ka method:</b><br>
+          1. Apne laptop me <b>START_BIOTRACKER.bat</b> run rakho.<br>
+          2. Black terminal me jo Same Wi-Fi URL print ho, woh mobile/laptop browser me open karo.<br>
+          3. Dono devices same Wi-Fi par hone chahiye. Windows Firewall prompt aaye to <b>Allow access</b> karo.
+          <div class="copybox"><span class="code">User app: http://YOUR-LAPTOP-IP:5000</span><span class="code">Admin: http://YOUR-LAPTOP-IP:5000/admin.html</span></div>
+        </div>
+        <div class="card"><h3>Professional deployment note</h3><p style="color:var(--muted);line-height:1.7">Same Wi-Fi ke bahar public access ke liye project ko Render/Railway/PythonAnywhere/VPS par host karna padega. Local SQLite demo ke liye best hai; production me PostgreSQL/MySQL use karna better rahega.</p></div>
+      </section>
+    </main>
+  </section>
+
+<div class="photo-modal" id="photoModal" onclick="closePhoto(event)"><div class="photo-box"><img id="photoModalImg" src="" alt="scan preview"><button class="btn ghost" onclick="closePhoto(event)">Close</button></div></div>
+
+<script>
+const API_BASE_URL = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : window.location.origin;
+let adminUser = JSON.parse(localStorage.getItem('bt_admin_session') || localStorage.getItem('bt_session') || 'null');
+function esc(v){return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function openPhoto(src){photoModalImg.src=src;photoModal.classList.add('show')}
+function closePhoto(e){if(e){e.stopPropagation()}photoModal.classList.remove('show');photoModalImg.src=''}
+async function apiPost(path,body){const r=await fetch(API_BASE_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Request failed');return d;}
+async function apiGet(path){const r=await fetch(API_BASE_URL+path);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Request failed');return d;}
+function showError(msg){const e=document.getElementById('errorBox');e.className='msg error';e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',4500)}
+function showPanel(name,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+name).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active')}
+async function adminLogin(){const msg=document.getElementById('loginMsg');msg.style.display='none';try{const data=await apiPost('/api/login',{email:email.value,password:password.value});if(data.user.role!=='admin')throw new Error('This account is not admin.');adminUser=data.user;localStorage.setItem('bt_admin_session',JSON.stringify(adminUser));localStorage.setItem('bt_session',JSON.stringify(adminUser));startApp();}catch(e){msg.className='msg error';msg.textContent=e.message;msg.style.display='block'}}
+function startApp(){if(!adminUser||adminUser.role!=='admin'){loginScreen.style.display='flex';app.style.display='none';return}loginScreen.style.display='none';app.style.display='block';adminEmail.textContent=adminUser.email;loadDashboard()}
+function logoutAdmin(){localStorage.removeItem('bt_admin_session');localStorage.removeItem('bt_session');adminUser=null;location.reload()}
+async function loadDashboard(){if(!adminUser)return;try{const d=await apiGet('/api/admin/overview?email='+encodeURIComponent(adminUser.email));const s=d.stats||{};totalUsers.textContent=s.total_users||0;totalScans.textContent=s.total_scans||0;plantScans.textContent=s.plant_scans||0;animalScans.textContent=s.animal_scans||0;totalMessages.textContent=s.total_messages||0;renderUsers(d.users||[]);renderScans(d.scans||[]);renderMessages(d.messages||[]);renderTop(d.top_species||[]);}catch(e){showError(e.message)}}
+function renderUsers(rows){usersTable.innerHTML='<tr><th>Name</th><th>Email</th><th>Org</th><th>Role</th><th>Joined</th><th>Action</th></tr>'+rows.map(u=>`<tr><td>${esc(u.fullname)}</td><td>${esc(u.email)}</td><td>${esc(u.organization||'-')}</td><td><span class="role ${u.role==='admin'?'admin':''}">${esc(u.role||'user')}</span></td><td>${esc(u.created_at||'')}</td><td>${u.role==='admin'?'-':`<button class="small-btn" onclick="deleteUser('${esc(u.email)}')">Delete</button>`}</td></tr>`).join('')}
+function renderScans(rows){scansTable.innerHTML='<tr><th>Photo</th><th>User</th><th>Type</th><th>Species</th><th>Scientific</th><th>Category</th><th>Confidence</th><th>Source</th><th>Date</th><th>Action</th></tr>'+rows.map(r=>`<tr><td>${r.image_path?`<img class="scan-photo" src="${esc(r.image_path)}" onclick="openPhoto('${esc(r.image_path)}')" alt="scan">`:'<div class="no-photo">No photo</div>'}</td><td>${esc(r.user_email)}</td><td>${esc(r.scan_type)}</td><td>${esc(r.species_name)}</td><td>${esc(r.scientific_name||'-')}</td><td>${esc(r.category||'-')}</td><td>${esc(r.confidence||'-')}</td><td>${esc(r.capture_source||'-')}</td><td>${esc(r.created_at||'')}</td><td><button class="small-btn" onclick="deleteScan(${r.id})">Delete</button></td></tr>`).join('')}
+function renderMessages(rows){messagesTable.innerHTML='<tr><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Action</th></tr>'+rows.map(m=>`<tr><td>${esc(m.name)}</td><td>${esc(m.email)}</td><td>${esc(m.message)}</td><td>${esc(m.created_at||'')}</td><td><button class="small-btn" onclick="deleteMessage(${m.id})">Delete</button></td></tr>`).join('')}
+function renderTop(rows){topSpecies.innerHTML=rows.length?rows.map(x=>`<div class="species"><b>${esc(x.species_name)}</b><small>${esc(x.category||'')} • ${x.count} scans</small></div>`).join(''):'<p style="color:var(--muted)">No scan records yet.</p>'}
+async function deleteUser(email){if(!confirm('Delete user '+email+'?'))return;try{await apiPost('/api/admin/delete-user',{admin_email:adminUser.email,target_email:email});loadDashboard()}catch(e){showError(e.message)}}
+async function deleteScan(id){if(!confirm('Delete this scan record?'))return;try{await apiPost('/api/admin/delete-scan',{admin_email:adminUser.email,scan_id:id});loadDashboard()}catch(e){showError(e.message)}}
+async function deleteMessage(id){if(!confirm('Delete this message?'))return;try{await apiPost('/api/admin/delete-message',{admin_email:adminUser.email,message_id:id});loadDashboard()}catch(e){showError(e.message)}}
+startApp();
+</script>
+</body>
+</html>

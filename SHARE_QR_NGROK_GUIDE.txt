@@ -1,0 +1,21 @@
+BioTracker Share/QR Setup
+
+1. First-time only:
+   - Download ngrok for Windows from https://ngrok.com/download
+   - Extract ngrok.exe
+   - Put ngrok.exe inside this project folder OR install it in PATH.
+   - Run this command once in CMD:
+     ngrok config add-authtoken YOUR_TOKEN
+
+2. Daily use:
+   - Double-click START_BIOTRACKER.bat
+   - It starts Flask backend and tries to start ngrok automatically.
+   - Open the website.
+   - Click the Share button near Login/Profile.
+   - QR code and WhatsApp share link will appear.
+
+3. Important:
+   - Keep both terminal windows open.
+   - If Share modal says local mode, ngrok is not found or authtoken is not configured.
+   - Admin panel: public-link/admin.html
+   - Do not share admin password with normal users.

@@ -1,0 +1,12 @@
+Your error means Windows py launcher is pointing to a missing Python path:
+C:\Python314\python.exe
+
+Use START_BIOTRACKER.bat from this ZIP. It avoids the broken py launcher and tries normal python first.
+
+If it still fails:
+1. Install Python 3.12 or 3.13 from https://www.python.org/downloads/
+2. During installation, tick: Add python.exe to PATH
+3. Open a new CMD and run: python --version
+4. Then double-click START_BIOTRACKER.bat again.
+
+Do not open index.html directly for PlantNet. Use START_BIOTRACKER.bat and keep the black window open.

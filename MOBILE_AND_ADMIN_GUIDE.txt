@@ -1,0 +1,22 @@
+HOW TO USE AS A PROFESSIONAL APP
+
+USER APP:
+- Users open http://127.0.0.1:5000 on the main laptop.
+- On same Wi-Fi, users open the LAN IP printed in terminal, for example http://192.168.1.5:5000.
+- Users can signup, login, upload plant/animal images, and view history.
+
+ADMIN APP:
+- Admin opens http://127.0.0.1:5000/admin.html.
+- On same Wi-Fi, admin can open http://YOUR-LAPTOP-IP:5000/admin.html.
+- Admin page has no scan/upload tool.
+- Admin can manage users, scan records, contact messages, and see stats.
+
+ADMIN LOGIN:
+Email: admin@biotracker.com
+Password: admin123
+
+FIREWALL:
+If Windows Firewall asks permission, click Allow Access.
+
+PRODUCTION:
+For access from anywhere, deploy on a real server and use a public URL.

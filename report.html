@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BioTracker Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, sans-serif; background: #0b1220; color: #e5eefc; }
+    .report-shell { min-height: 100vh; padding: 28px; position: relative; overflow: hidden; }
+    .report-shell.plant {
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.25), transparent 32%),
+        linear-gradient(135deg,#052e16 0%,#064e3b 45%,#0f172a 100%);
+    }
+    .report-shell.animal {
+      background:
+        radial-gradient(circle at top left, rgba(251,191,36,.18), transparent 32%),
+        linear-gradient(135deg,#3b1d0b 0%,#5b3415 35%,#0f172a 100%);
+    }
+    .decor { position: absolute; border-radius: 999px; filter: blur(3px); opacity: .18; }
+    .d1 { width: 240px; height: 240px; top: -40px; right: -60px; background: #86efac; }
+    .animal .d1 { background: #fcd34d; }
+    .d2 { width: 180px; height: 180px; bottom: 20px; left: -40px; background: #34d399; }
+    .animal .d2 { background: #fb923c; }
+
+    .logo-watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .075;
+    }
+    .logo-watermark img {
+      width: min(560px, 72vw);
+      max-width: 78%;
+      filter: grayscale(1);
+    }
+    .app-watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .05;
+      font-size: clamp(48px, 10vw, 120px);
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: white;
+      transform: rotate(-22deg);
+      white-space: nowrap;
+    }
+
+    .report-card {
+      position: relative;
+      z-index: 1;
+      max-width: 1120px;
+      margin: 0 auto;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(22px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0,0,0,.28);
+    }
+    .top-brand-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 28px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+    }
+    .brand-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .college-logo {
+      width: 72px; height: 72px; object-fit: contain; border-radius: 50%;
+      background: rgba(255,255,255,.9); padding: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      flex-shrink: 0;
+    }
+    .brand-text { min-width: 0; }
+    .brand-text h2 {
+      margin: 0 0 4px; font-size: 20px; line-height: 1.2; color: #fff; font-weight: 800;
+    }
+    .brand-text p { margin: 0; color: #d7dfeb; font-size: 13px; line-height: 1.55; }
+    .brand-side { text-align: right; }
+    .brand-side .mini-label {
+      display: inline-block; padding: 7px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12); color: white;
+      margin-bottom: 8px;
+    }
+    .brand-side p { margin: 0; color: #d7dfeb; font-size: 13px; line-height: 1.45; }
+
+    .hero {
+      padding: 32px 34px 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      position: relative;
+      z-index: 2;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 40px; line-height: 1.05; font-weight: 800; color: #fff; }
+    .hero p { margin: 0; color: #d6deeb; max-width: 700px; line-height: 1.7; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .badge {
+      padding: 9px 14px; border-radius: 999px; background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.12); font-size: 13px; font-weight: 700; color: #fff;
+    }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-btn {
+      border: none; border-radius: 14px; padding: 12px 18px; font-weight: 700; cursor: pointer;
+    }
+    .primary { background: linear-gradient(135deg,#22c55e,#059669); color: #fff; }
+    .animal .primary { background: linear-gradient(135deg,#f59e0b,#ea580c); }
+    .secondary { background: #fff; color: #0f172a; }
+
+    .body-grid {
+      display: grid; grid-template-columns: 390px 1fr; gap: 28px; padding: 28px 34px 34px;
+      position: relative; z-index: 2;
+    }
+    .image-card, .info-card {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 24px; padding: 22px;
+    }
+    .image-card img {
+      width: 100%; height: 370px; object-fit: cover; border-radius: 20px; border: 1px solid rgba(255,255,255,.12); background: #0f172a;
+    }
+    .placeholder {
+      height: 370px; border-radius: 20px; border: 1px dashed rgba(255,255,255,.25); display: grid; place-items: center; color: #cbd5e1; font-weight: 700;
+    }
+    .section-title { margin: 0 0 16px; font-size: 22px; font-weight: 800; color: #fff; }
+    .meta-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-bottom: 18px; }
+    .meta-item {
+      background: rgba(255,255,255,.06); border-radius: 18px; padding: 14px 16px; border: 1px solid rgba(255,255,255,.1);
+    }
+    .meta-item span {
+      display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #b8c4d7; margin-bottom: 8px;
+    }
+    .meta-item strong { font-size: 15px; line-height: 1.5; color: #fff; }
+    .narrative { margin: 0 0 18px; color: #dbe5f4; line-height: 1.78; font-size: 15px; }
+    .bullet-list { margin: 0; padding-left: 18px; color: #dbe5f4; line-height: 1.75; }
+    .bullet-list li { margin-bottom: 10px; }
+    .footer-note {
+      position: relative; z-index: 2;
+      padding: 0 34px 32px; color: #b9c6d9; font-size: 13px;
+    }
+
+    @page {
+      size: A4;
+      margin: 10mm;
+    }
+
+
+    .pdf-exporting .hero-actions { display: none !important; }
+    .pdf-exporting .footer-note { display: block !important; }
+    .pdf-status {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      z-index: 9999;
+      background: rgba(15,23,42,.95);
+      color: white;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 18px 45px rgba(0,0,0,.3);
+      display: none;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body { background: #0b1220 !important; }
+      .hero-actions, .footer-note { display: none !important; }
+      .report-shell {
+        min-height: auto;
+        padding: 0;
+      }
+      .report-shell.plant {
+        background:
+          radial-gradient(circle at top left, rgba(34,197,94,.25), transparent 32%),
+          linear-gradient(135deg,#052e16 0%,#064e3b 45%,#0f172a 100%) !important;
+      }
+      .report-shell.animal {
+        background:
+          radial-gradient(circle at top left, rgba(251,191,36,.18), transparent 32%),
+          linear-gradient(135deg,#3b1d0b 0%,#5b3415 35%,#0f172a 100%) !important;
+      }
+      .report-card {
+        box-shadow: none;
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 24px;
+        background: rgba(255,255,255,.08) !important;
+        color: #e5eefc !important;
+      }
+      .top-brand-bar {
+        background: rgba(255,255,255,.05) !important;
+        border-color: rgba(255,255,255,.12) !important;
+      }
+      .hero {
+        border-color: rgba(255,255,255,.12) !important;
+      }
+      .image-card, .info-card, .meta-item {
+        background: rgba(255,255,255,.06) !important;
+        border-color: rgba(255,255,255,.12) !important;
+        color: #e5eefc !important;
+      }
+      .hero h1, .section-title, .meta-item strong, .brand-text h2 { color: #fff !important; }
+      .hero p, .narrative, .bullet-list, .meta-item span, .brand-text p, .brand-side p { color: #d6deeb !important; }
+      .badge, .brand-side .mini-label {
+        border-color: rgba(255,255,255,.12) !important;
+        color: #fff !important;
+        background: rgba(255,255,255,.1) !important;
+      }
+      .logo-watermark { opacity: .06 !important; }
+      .app-watermark { opacity: .05 !important; color: white !important; }
+      .college-logo { background: rgba(255,255,255,.95) !important; }
+      .report-card, .image-card, .info-card, .meta-item, .top-brand-bar, .hero {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .body-grid { grid-template-columns: 1fr; }
+      .hero, .top-brand-bar { flex-direction: column; }
+      .hero h1 { font-size: 32px; }
+      .brand-side { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div id="reportRoot"></div>
+  <div class="pdf-status" id="pdfStatus">Creating styled PDF...</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="report.js"></script>
+</body>
+</html>

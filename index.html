@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioTracker AI | Pro</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Browser animal AI + backend PlantNet plant identification -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="toast success" id="toastMsg">Thank you! Our support team will contact you soon.</div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a class="nav-logo" onclick="goHome()">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"></path></svg>
+            BioTracker AI
+        </a>
+        <div class="nav-links">
+            <a onclick="goHome(); setTimeout(()=>document.getElementById('project-overview').scrollIntoView({behavior:'smooth'}),100)">Project Overview</a>
+            <a onclick="goHome(); setTimeout(()=>document.getElementById('workflow3d').scrollIntoView({behavior:'smooth'}),100)">Workflow</a>
+            <a onclick="goHome(); setTimeout(()=>document.getElementById('features').scrollIntoView({behavior:'smooth'}),100)">Features</a>
+            <a onclick="goHome(); setTimeout(()=>document.getElementById('experience').scrollIntoView({behavior:'smooth'}),100)">Experience</a>
+            <a onclick="goHome(); setTimeout(()=>document.getElementById('faq').scrollIntoView({behavior:'smooth'}),100)">FAQ</a>
+        </div>
+        <div class="nav-buttons" id="navButtons">
+            <!-- Rendered by JS -->
+        </div>
+    </nav>
+
+    <!-- ==========================================
+         LANDING PAGE
+         ========================================== -->
+    <div id="landingPage">
+
+        <!-- HERO SECTION -->
+        <section class="landing-section shopify-hero">
+            <div class="hero-orb orb-one"></div>
+            <div class="hero-orb orb-two"></div>
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <span class="hero-badge">AI Biodiversity Scanner - Premium Shopify Theme</span>
+                    <h1>Discover Nature With a <br><span>3D AI Scanner</span></h1>
+                    <p>Scan plants and animals in real-time, explore scientific facts, and learn biodiversity through a clean premium dashboard built for students, researchers, and nature lovers.</p>
+                    <div class="hero-actions">
+                        <div id="heroBtn"></div>
+                        <a class="ghost-btn" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Explore Features</a>
+                    </div>
+                    <div class="hero-mini-stats">
+                        <div><strong>40K+</strong><span>Plant species</span></div>
+                        <div><strong>400+</strong><span>Animal scans</span></div>
+                        <div><strong>Live</strong><span>Camera AI</span></div>
+                    </div>
+                    <div class="hero-trust-strip">
+                        <span>Built for college projects</span>
+                        <span>Responsive UI</span>
+                        <span>Premium animations</span>
+                    </div>
+                </div>
+
+                <div class="hero-video-stage tilt-3d">
+                    <div class="video-glow"></div>
+                    <div class="video-card-3d">
+                        <video class="home-video" autoplay muted loop playsinline preload="metadata">
+                            <source src="assets/home-video.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-overlay-content">
+                            <span class="scan-pill">Live Preview</span>
+                            <h3>Nature Intelligence</h3>
+                            <p>Upload - Scan - Identify</p>
+                        </div>
+                    </div>
+                    <div class="floating-chip chip-top">AI Scan Ready</div>
+                    <div class="floating-chip chip-bottom">3D Eco Dashboard</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- PROFESSIONAL PROJECT OVERVIEW SECTION -->
+        <section id="project-overview" class="project-overview-section reveal-section">
+            <div class="section-kicker">Professional Landing Page</div>
+            <h2 class="section-heading">Complete Project Overview</h2>
+            <p class="section-subheading">A presentation-ready explanation of what the project solves, how it works, and why it matters for biodiversity conservation.</p>
+
+            <div class="overview-grid">
+                <div class="overview-card tilt-card">
+                    <div class="overview-icon">!</div>
+                    <h3>Problem Statement</h3>
+                    <p>People often struggle to identify unknown plants and animals in real time. Traditional methods are slow, require expert knowledge, and do not provide an easy digital record for learning or conservation use.</p>
+                </div>
+                <div class="overview-card tilt-card">
+                    <div class="overview-icon">◎</div>
+                    <h3>Project Objective</h3>
+                    <p>BioTracker AI aims to build a smart web platform that helps users capture, upload, identify, and document biodiversity observations with AI-powered analysis, educational insights, and downloadable reports.</p>
+                </div>
+                <div class="overview-card tilt-card">
+                    <div class="overview-icon">⚙</div>
+                    <h3>Technology Used</h3>
+                    <p>HTML, CSS, JavaScript, Flask backend, SQLite database, PlantNet API for plant detection, TensorFlow MobileNet for browser-side classification, ngrok sharing, and an admin management panel.</p>
+                </div>
+                <div class="overview-card tilt-card">
+                    <div class="overview-icon">♥</div>
+                    <h3>Why Biodiversity Matters</h3>
+                    <p>Biodiversity supports ecological balance, food systems, climate resilience, and natural habitats. A smart identification platform can increase awareness and help people value and protect species around them.</p>
+                </div>
+                <div class="overview-card tilt-card">
+                    <div class="overview-icon">⇱</div>
+                    <h3>Future Scope</h3>
+                    <p>The platform can be expanded with location-based biodiversity mapping, analytics charts, community observations, conservation status alerts, multilingual support, and advanced research datasets.</p>
+                </div>
+                <div class="overview-card tilt-card overview-highlight">
+                    <div class="overview-icon">★</div>
+                    <h3>Project Impact</h3>
+                    <p>This project is not just an AI scanner. It acts as a biodiversity learning tool, digital observation diary, reporting platform, and management dashboard — making it suitable for both academics and real-world awareness.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D WORKFLOW SECTION -->
+        <section id="workflow3d" class="workflow-3d-section reveal-section">
+            <div class="section-kicker">Animated Project Workflow</div>
+            <h2 class="section-heading">How It Works</h2>
+            <p class="section-subheading">A smooth 3D presentation flow that visually explains the complete system pipeline from scan to report and admin management.</p>
+
+            <div class="workflow-stage-3d">
+                <div class="workflow-glow glow-a"></div>
+                <div class="workflow-glow glow-b"></div>
+
+                <div class="workflow-node-3d tilt-card">
+                    <span class="workflow-step-no">01</span>
+                    <div class="workflow-symbol">⌁</div>
+                    <h3>Upload / Capture Image</h3>
+                    <p>User uses live camera or uploads a plant or animal photo from mobile or laptop.</p>
+                </div>
+
+                <div class="workflow-connector">
+                    <span></span><span></span><span></span>
+                </div>
+
+                <div class="workflow-node-3d tilt-card">
+                    <span class="workflow-step-no">02</span>
+                    <div class="workflow-symbol">AI</div>
+                    <h3>AI Identification</h3>
+                    <p>The system identifies the image using PlantNet, MobileNet, and image analysis logic.</p>
+                </div>
+
+                <div class="workflow-connector">
+                    <span></span><span></span><span></span>
+                </div>
+
+                <div class="workflow-node-3d tilt-card">
+                    <span class="workflow-step-no">03</span>
+                    <div class="workflow-symbol">⊕</div>
+                    <h3>Species Details + Conservation Info</h3>
+                    <p>Users get scientific details, confidence score, descriptive facts, history save, and themed report output.</p>
+                </div>
+
+                <div class="workflow-connector">
+                    <span></span><span></span><span></span>
+                </div>
+
+                <div class="workflow-node-3d tilt-card">
+                    <span class="workflow-step-no">04</span>
+                    <div class="workflow-symbol">▣</div>
+                    <h3>Report + Admin Analytics</h3>
+                    <p>Styled PDF reports are generated while the admin dashboard monitors users, scans, records, and future analytics.</p>
+                </div>
+            </div>
+
+            <div class="workflow-summary-panel tilt-card">
+                <div>
+                    <div class="section-kicker">Workflow Summary</div>
+                    <h3>Designed for easy explanation in project presentation</h3>
+                    <p>This 4-step flow makes it easy for your teacher to instantly understand the system architecture, output pipeline, and real-world relevance of the application.</p>
+                </div>
+                <div class="workflow-mini-points">
+                    <span>Live Input</span>
+                    <span>AI Processing</span>
+                    <span>Knowledge Output</span>
+                    <span>Report + Admin</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURES SECTION -->
+        <section id="features" class="features-section">
+            <h2 class="section-heading">Powerful Features</h2>
+            <div class="cards-row">
+                <div class="pro-card">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <h3>Live Camera Scan</h3>
+                    <p>Turn your phone or laptop camera into a smart scanner. Instantly identify over 400+ animals locally without any delay.</p>
+                </div>
+                <div class="pro-card">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2a3 3 0 0 0-3 3c0 1.5 1.5 3 3 3s3-1.5 3-3a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 6a3 3 0 0 0-3 3c0 1.5 1.5 3 3 3s3-1.5 3-3a3 3 0 0 0-3-3z"></path>
+                        <path d="M5 6a3 3 0 0 0-3 3c0 1.5 1.5 3 3 3s3-1.5 3-3a3 3 0 0 0-3-3z"></path>
+                        <path d="M12 22c-4 0-7-2-7-6a5 5 0 0 1 10 0c0 4-3 6-7 6z"></path>
+                    </svg>
+                    <h3>Animal Explorer</h3>
+                    <p>Search any animal by name or upload a photo to learn its history, diet, and facts powered by global databases.</p>
+                </div>
+                <div class="pro-card">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M11 20A7 7 0 0 1 4 13V4h9a7 7 0 0 1 7 7v9h-9Z"></path>
+                        <path d="M11 20V12"></path>
+                    </svg>
+                    <h3>Plant Explorer</h3>
+                    <p>Upload a picture of any leaf or flower. Our advanced AI will accurately tell you its common name and scientific details.</p>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- EXPERIENCE / VIDEO SHOWCASE -->
+        <section id="experience" class="experience-section reveal-section">
+            <div class="section-kicker">Immersive Experience</div>
+            <h2 class="section-heading">Nature Scanner With Cinematic Video Flow</h2>
+            <p class="section-subheading">A richer homepage experience with video storytelling, 3D depth, and premium Shopify-style product presentation.</p>
+            <div class="video-showcase-grid">
+                <div class="showcase-main-card tilt-card">
+                    <video autoplay muted loop playsinline preload="metadata">
+                        <source src="assets/eco-showcase-1.mp4" type="video/mp4">
+                    </video>
+                    <div class="showcase-content">
+                        <span>01 / Scan</span>
+                        <h3>Capture nature in seconds</h3>
+                        <p>Users can scan plants or animals and understand species details with a beautiful AI dashboard.</p>
+                    </div>
+                </div>
+                <div class="showcase-side-stack">
+                    <div class="mini-video-card tilt-card">
+                        <video autoplay muted loop playsinline preload="metadata">
+                            <source src="assets/eco-showcase-2.mp4" type="video/mp4">
+                        </video>
+                        <div><strong>Smart identification</strong><span>AI-powered results card</span></div>
+                    </div>
+                    <div class="mini-video-card tilt-card">
+                        <video autoplay muted loop playsinline preload="metadata">
+                            <source src="assets/eco-showcase-3.mp4" type="video/mp4">
+                        </video>
+                        <div><strong>Explore biodiversity</strong><span>Educational facts and insights</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PREMIUM PROCESS SECTION -->
+        <section class="process-section reveal-section">
+            <div class="section-kicker">How It Works</div>
+            <h2 class="section-heading">Simple Flow, Professional Output</h2>
+            <div class="process-grid">
+                <div class="process-card tilt-card"><span>01</span><h3>Upload or open camera</h3><p>Select an image or use live camera scanning from the dashboard.</p></div>
+                <div class="process-card tilt-card"><span>02</span><h3>AI analyzes species</h3><p>The system checks whether the image contains plant or animal life.</p></div>
+                <div class="process-card tilt-card"><span>03</span><h3>Get clean result card</h3><p>View common name, scientific name, category, and useful facts.</p></div>
+            </div>
+        </section>
+
+        <!-- 3D STATS / CTA SECTION -->
+        <section class="impact-section reveal-section">
+            <div class="impact-panel tilt-card">
+                <div>
+                    <div class="section-kicker">Project Upgrade</div>
+                    <h2>More attractive for college presentation</h2>
+                    <p>This version now looks like a real SaaS/product website with videos, 3D cards, animated sections, clean CTA, and polished content.</p>
+                </div>
+                <div class="impact-stats">
+                    <div><strong data-count="6">0</strong><span>Premium sections</span></div>
+                    <div><strong data-count="3">0</strong><span>Extra videos</span></div>
+                    <div><strong data-count="100">0</strong><span>Responsive UI</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="about-section">
+            <div class="info-container">
+                <div class="info-text">
+                    <h2>Connecting You With Nature</h2>
+                    <p>BioTracker AI is designed to make learning about wildlife and plants easier than ever. Whether you are a student, a nature lover, or just curious about a flower in your backyard, this tool gives you instant answers.</p>
+                    <div id="aboutBtn"></div>
+                </div>
+                <div class="info-image">
+                    <div class="stat-box">
+                        <div class="stat-num">Fast</div>
+                        <div class="stat-desc">Identifies animals & plants<br>in under a second.</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-num">Smart</div>
+                        <div class="stat-desc">Filters out non-living objects<br>like cars or phones.</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-num">Simple</div>
+                        <div class="stat-desc">Clean, easy-to-use design<br>for mobile and desktop.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BIODIVERSITY SECTION -->
+        <section id="insights" class="biodiversity-section shopify-insights">
+            <h2 class="section-heading">Biodiversity Insights</h2>
+            <p class="section-subheading">Understanding and protecting the variety of life on Earth.</p>
+            <div class="bio-info-grid">
+                <div class="bio-info-box">
+                    <h4>What is Biodiversity?</h4>
+                    <p>Biodiversity is the variety of all living things, including plants, animals, and microorganisms, and the ecosystems they form. It's essential for a healthy planet.</p>
+                </div>
+                <div class="bio-info-box">
+                    <h4>Why It Matters</h4>
+                    <p>Ecosystems provide us with essential services like clean air, water, food, and medicine. Biodiversity is the foundation of these services.</p>
+                </div>
+                <div class="bio-info-box">
+                    <h4>Threats to Life</h4>
+                    <p>Habitat loss, climate change, pollution, and overexploitation are major threats to global biodiversity. Many species are facing extinction.</p>
+                </div>
+                <div class="bio-info-box">
+                    <h4>How We Help</h4>
+                    <p>By making species identification easy and accessible, we hope to inspire curiosity and promote conservation efforts worldwide.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TESTIMONIALS SECTION -->
+        <section id="testimonials" class="testimonial-section">
+            <h2 class="section-heading">What Our Users Say</h2>
+            <p class="section-subheading">Hear from nature lovers, students, and professionals using BioTracker AI.</p>
+            <div class="testimonial-row">
+                <div class="testimonial-card">
+                    <p>"The Live Camera Scan is unbelievably fast! I can identify animals on my hikes instantly. A must-have tool for nature enthusiasts."</p>
+                    <div class="testifier-info">
+                        <img src="https://ui-avatars.com/api/?name=Anya+Sharma&background=115e59&color=fff&rounded=true" class="testifier-avatar">
+                        <div class="testifier-name">
+                            <h5>Dr. Anya Sharma</h5>
+                            <p>Conservationist</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p>"As a student, the Wikipedia integration is a lifesaver. I get all the taxonomical and diet details for my biology projects in one place."</p>
+                    <div class="testifier-info">
+                        <img src="https://ui-avatars.com/api/?name=Liam+Chen&background=115e59&color=fff&rounded=true" class="testifier-avatar">
+                        <div class="testifier-name">
+                            <h5>Liam Chen</h5>
+                            <p>Biology Student</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p>"The Plant Explorer is so accurate! I identified all the rare flowers in my backyard. It's so simple and clean."</p>
+                    <div class="testifier-info">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=115e59&color=fff&rounded=true" class="testifier-avatar">
+                        <div class="testifier-name">
+                            <h5>Sarah Johnson</h5>
+                            <p>Nature Lover</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ SECTION -->
+        <section id="faq" class="faq-section">
+            <h2 class="section-heading">Frequently Asked Questions</h2>
+            <p class="section-subheading">Common questions about BioTracker AI answered.</p>
+            <div class="faq-container">
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        Do I need internet to scan animals?
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition: 0.3s;"><path d="M6 9l6 6 6-6"></path></svg>
+                    </div>
+                    <div class="faq-answer">No, the basic animal detection runs directly on your device, making it super fast. However, fetching detailed Wikipedia information does require an internet connection.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        Can it identify any plant in the world?
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition: 0.3s;"><path d="M6 9l6 6 6-6"></path></svg>
+                    </div>
+                    <div class="faq-answer">We use the enterprise PlantNet API which contains over 40,000+ plant species globally. While it's extremely accurate, it might struggle with heavily edited or blurry photos.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        Is my uploaded data safe?
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition: 0.3s;"><path d="M6 9l6 6 6-6"></path></svg>
+                    </div>
+                    <div class="faq-answer">Absolutely. We do not sell or share your scanned images with third parties. Your account password is also heavily encrypted.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div>&copy; 2026 BioTracker AI. All rights reserved.</div>
+            <div class="footer-links">
+                <a onclick="openContact()">Contact Support</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+            </div>
+        </footer>
+
+    </div><!-- end #landingPage -->
+
+    <!-- ==========================================
+         DASHBOARD
+         ========================================== -->
+    <div id="dashboardPage" style="display:none;">
+        <div class="dashboard-bg"></div>
+        <div class="dashboard-overlay"></div>
+        <div class="dashboard-container">
+            <div class="dashboard-content-wrapper">
+                <div class="dashboard-box">
+
+                    <!-- TAB MENU -->
+                    <div class="tab-menu-wrapper">
+                        <div class="tab-menu">
+                            <div class="tab-btn active" id="tab-btn-scan" onclick="openTab('scan', event)">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                                <span>Live Scanner</span>
+                            </div>
+                            <div class="tab-btn" id="tab-btn-animal" onclick="openTab('animal', event)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2a3 3 0 0 0-3 3c0 1.5 1.5 3 3 3s3-1.5 3-3a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 6a3 3 0 0 0-3 3c0 1.5 1.5 3 3 3s3-1.5 3-3a3 3 0 0 0-3-3z"></path>
+                                    <path d="M5 6a3 3 0 0 0-3 3c0 1.5 1.5 3 3 3s3-1.5 3-3a3 3 0 0 0-3-3z"></path>
+                                    <path d="M12 22c-4 0-7-2-7-6a5 5 0 0 1 10 0c0 4-3 6-7 6z"></path>
+                                </svg>
+                                <span>Animal Explorer</span>
+                            </div>
+                            <div class="tab-btn" id="tab-btn-plant" onclick="openTab('plant', event)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 20A7 7 0 0 1 4 13V4h9a7 7 0 0 1 7 7v9h-9Z"></path>
+                                    <path d="M11 20V12"></path>
+                                </svg>
+                                <span>Plant Explorer</span>
+                            </div>
+                            <div class="tab-btn" id="tab-btn-history" onclick="openTab('history', event)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 3v18h18"></path><path d="M7 14l3-3 3 2 5-7"></path>
+                                </svg>
+                                <span>History</span>
+                            </div>
+                            <div class="tab-btn admin-only" id="tab-btn-admin" onclick="openTab('admin', event)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z"></path><path d="M9 12l2 2 4-4"></path>
+                                </svg>
+                                <span>Admin</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIVE SCANNER TAB -->
+                    <div id="tab-scan" class="tab-content active">
+                        <h2 class="section-title">Live Camera Scan</h2>
+                        <p class="section-desc" id="scanWelcome">Turn on your camera to scan animals and plants instantly.</p>
+
+                        <div id="scanError" class="inline-msg error" style="display:none;"></div>
+
+                        <div style="display:flex; justify-content:center; gap:10px; margin-bottom: 10px;">
+                            <button id="startCamBtn" class="pro-btn" onclick="startCamera()">Turn On Camera</button>
+                            <button id="stopCamBtn" class="pro-btn danger" style="display: none;" onclick="stopCamera()">Turn Off Camera</button>
+                        </div>
+
+                        <div class="video-container" id="video-container" style="display: none;">
+                            <video id="webcam" autoplay playsinline></video>
+                            <div id="scan-overlay" class="scan-overlay"><div class="scan-line"></div></div>
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button id="captureBtn" class="pro-btn btn-full" style="display: none; max-width: 300px; margin: 0 auto;" onclick="captureImage()">Click & Scan</button>
+                        </div>
+
+                        <div class="pro-divider"><span>OR UPLOAD PHOTO</span></div>
+
+                        <div class="upload-area"><input type="file" id="file_scan" accept="image/*"></div>
+                        <button class="pro-btn btn-full" onclick="analyzeImage('scan')">Analyze Uploaded Image</button>
+
+                        <div id="loader-scan" class="loader-overlay">
+                            <div class="spinner"></div>
+                            <div class="loader-text">Scanning Image...</div>
+                            <div class="ai-loader-msg">AI is analyzing your image...</div>
+                        </div>
+                        <div id="result-scan"></div>
+                    </div>
+
+                    <!-- ANIMAL EXPLORER TAB -->
+                    <div id="tab-animal" class="tab-content">
+                        <h2 class="section-title">Animal Explorer</h2>
+                        <p class="section-desc">Search for animals or upload a picture to identify them.</p>
+                        <div id="animalError" class="inline-msg error" style="display:none;"></div>
+                        <div class="search-bar">
+                            <input type="text" id="animalSearch" placeholder="Enter exact animal name..."
+                                onkeypress="if(event.key === 'Enter') fetchWikiData('animalSearch', 'animalResult', 'animal')">
+                            <button class="pro-btn" onclick="fetchWikiData('animalSearch', 'animalResult', 'animal')">Search</button>
+                        </div>
+                        <div id="loader-animal-text" class="loader-overlay">
+                            <div class="spinner"></div>
+                            <div class="loader-text">Searching...</div>
+                        </div>
+                        <div id="animalResult" class="unified-result" style="display: none; border: none; padding: 0; box-shadow: none; margin-top:0;"></div>
+
+                        <div class="pro-divider" style="margin-top: 40px;"><span>IDENTIFY ANIMAL VIA IMAGE</span></div>
+                        <div class="upload-area"><input type="file" id="file_animal" accept="image/*"></div>
+                        <button class="pro-btn btn-full" onclick="analyzeImage('animal')">Analyze Uploaded Image</button>
+                        <div id="loader-animal" class="loader-overlay">
+                            <div class="spinner"></div>
+                            <div class="loader-text">Scanning Image...</div>
+                            <div class="ai-loader-msg">AI is analyzing your image...</div>
+                        </div>
+                        <div id="result-animal"></div>
+                    </div>
+
+                    <!-- PLANT EXPLORER TAB -->
+                    <div id="tab-plant" class="tab-content">
+                        <h2 class="section-title">Plant Explorer</h2>
+                        <p class="section-desc">Search for plants or upload a leaf/flower picture to identify them.</p>
+                        <div id="plantError" class="inline-msg error" style="display:none;"></div>
+                        <div class="search-bar">
+                            <input type="text" id="plantSearch" placeholder="Enter exact plant name..."
+                                onkeypress="if(event.key === 'Enter') fetchWikiData('plantSearch', 'plantResult', 'plant')">
+                            <button class="pro-btn" onclick="fetchWikiData('plantSearch', 'plantResult', 'plant')">Search</button>
+                        </div>
+                        <div id="loader-plant-text" class="loader-overlay">
+                            <div class="spinner"></div>
+                            <div class="loader-text">Searching...</div>
+                        </div>
+                        <div id="plantResult" class="unified-result" style="display: none; border: none; padding: 0; box-shadow: none; margin-top:0;"></div>
+
+                        <div class="pro-divider" style="margin-top: 40px;"><span>IDENTIFY PLANT VIA IMAGE</span></div>
+                        <div class="upload-area"><input type="file" id="file_plant" accept="image/*"></div>
+                        <button class="pro-btn btn-full" onclick="analyzeImage('plant')">Analyze Uploaded Image</button>
+                        <div id="loader-plant" class="loader-overlay">
+                            <div class="spinner"></div>
+                            <div class="loader-text">Scanning Image...</div>
+                            <div class="ai-loader-msg">AI is analyzing your image...</div>
+                        </div>
+                        <div id="result-plant"></div>
+                    </div>
+
+
+                    <!-- DATABASE HISTORY TAB -->
+                    <div id="tab-history" class="tab-content">
+                        <h2 class="section-title">Database & Scan History</h2>
+                        <p class="section-desc">Your login, profile, contact messages and scan records are now saved in SQLite database.</p>
+                        <div id="historyError" class="inline-msg error" style="display:none;"></div>
+                        <div class="db-stats-grid">
+                            <div class="db-stat-card"><span id="statTotal">0</span><p>Total Scans</p></div>
+                            <div class="db-stat-card"><span id="statPlants">0</span><p>Plant Scans</p></div>
+                            <div class="db-stat-card"><span id="statAnimals">0</span><p>Animal Scans</p></div>
+                        </div>
+                        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:20px 0;">
+                            <button class="pro-btn" onclick="loadHistory()">Refresh History</button>
+                            <button class="pro-btn outline" onclick="checkDatabaseStatus()">Check Database</button>
+                        </div>
+                        <div id="dbStatus" class="database-status"></div>
+                        <div id="historyList" class="history-list"></div>
+                    </div>
+
+                    <!-- ADMIN DASHBOARD TAB -->
+                    <div id="tab-admin" class="tab-content admin-only">
+                        <h2 class="section-title">Admin Dashboard</h2>
+                        <p class="section-desc">Manage users, scans, contact messages and project database stats from one professional backend panel.</p>
+                        <div id="adminError" class="inline-msg error" style="display:none;"></div>
+                        <div class="db-stats-grid admin-stats-grid">
+                            <div class="db-stat-card"><span id="adminTotalUsers">0</span><p>Total Users</p></div>
+                            <div class="db-stat-card"><span id="adminTotalScans">0</span><p>Total Scans</p></div>
+                            <div class="db-stat-card"><span id="adminPlantScans">0</span><p>Plant Scans</p></div>
+                            <div class="db-stat-card"><span id="adminAnimalScans">0</span><p>Animal Scans</p></div>
+                            <div class="db-stat-card"><span id="adminMessages">0</span><p>Messages</p></div>
+                        </div>
+                        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:20px 0;">
+                            <button class="pro-btn" onclick="loadAdminDashboard()">Refresh Admin Data</button>
+                            <button class="pro-btn outline" onclick="openTab('history')">My History</button>
+                        </div>
+                        <div class="admin-section-card">
+                            <h3>Registered Users</h3>
+                            <div class="admin-table-wrap"><table class="admin-table" id="adminUsersTable"></table></div>
+                        </div>
+                        <div class="admin-section-card">
+                            <h3>Recent Scan Records</h3>
+                            <div class="admin-table-wrap"><table class="admin-table" id="adminScansTable"></table></div>
+                        </div>
+                        <div class="admin-section-card">
+                            <h3>Contact Messages</h3>
+                            <div class="admin-table-wrap"><table class="admin-table" id="adminMessagesTable"></table></div>
+                        </div>
+                        <div class="admin-section-card">
+                            <h3>Most Scanned Species</h3>
+                            <div id="adminTopSpecies" class="top-species-list"></div>
+                        </div>
+                    </div>
+
+
+                    <canvas id="canvas" style="display:none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div><!-- end #dashboardPage -->
+
+    <!-- ==========================================
+         AUTH MODAL
+         ========================================== -->
+    <div class="login-overlay" id="loginPanel">
+        <div class="back-circle-light" onclick="closeLogin()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+        </div>
+
+        <!-- LOGIN BOX -->
+        <div class="form-box" id="loginBox">
+            <h2>Welcome Back</h2>
+            <p class="sub">Login to your account to continue</p>
+            <div class="inline-msg" id="loginMsg"></div>
+            <div>
+                <input type="email" id="loginEmail" class="login-input" placeholder="Email Address">
+                <div class="pwd-wrap">
+                    <input type="password" id="loginPassword" class="login-input" placeholder="Password">
+                    <span class="eye-icon" onclick="togglePassword('loginPassword', 'eyeOpen1', 'eyeClosed1')">
+                        <svg id="eyeOpen1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg id="eyeClosed1" style="display: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="login-row">
+                    <label><input type="checkbox" id="rememberMe"> Remember Me</label>
+                    <a onclick="switchForm('forgotBox')">Forgot Password?</a>
+                </div>
+                <button class="pro-btn btn-full" onclick="doLogin()">Login</button>
+            </div>
+            <div class="bottom-link">Don't have an account? <a onclick="switchForm('signupBox')">Sign Up</a></div>
+        </div>
+
+        <!-- SIGNUP BOX -->
+        <div class="form-box" id="signupBox">
+            <h2>Create Account</h2>
+            <p class="sub">Join us to explore nature</p>
+            <div class="inline-msg" id="signupMsg"></div>
+            <div>
+                <input type="text" id="signupName" class="login-input" placeholder="Full Name">
+                <input type="email" id="signupEmail" class="login-input" placeholder="Email Address">
+                <div class="pwd-wrap">
+                    <input type="password" id="signupPassword" class="login-input" placeholder="Create Password">
+                </div>
+                <button class="pro-btn btn-full" onclick="doSignup()">Sign Up</button>
+            </div>
+            <div class="bottom-link">Already have an account? <a onclick="switchForm('loginBox')">Login</a></div>
+        </div>
+
+        <!-- FORGOT PASSWORD BOX -->
+        <div class="form-box" id="forgotBox">
+            <h2>Reset Password</h2>
+            <p class="sub">Instructions will be sent to your email</p>
+            <div>
+                <input type="email" id="forgotEmail" class="login-input" placeholder="Email Address">
+                <button class="pro-btn btn-full" onclick="doForgot()">Send Recovery Link</button>
+            </div>
+            <div class="bottom-link" style="margin-top: 25px;">Back to <a onclick="switchForm('loginBox')">Login</a></div>
+        </div>
+
+        <!-- ACCOUNT SETTINGS BOX -->
+        <div class="form-box settings-panel" id="editProfileBox">
+            <div class="settings-header-bg">
+                <h2>Account Settings</h2>
+                <p class="sub">Update your personal details</p>
+            </div>
+            <div class="settings-body">
+                <div>
+                    <label class="settings-label">Full Name</label>
+                    <input type="text" id="settingsName" class="login-input">
+                </div>
+                <div>
+                    <label class="settings-label">Institution / Organization</label>
+                    <input type="text" id="settingsOrg" class="login-input" placeholder="e.g. Oxford University">
+                </div>
+                <div class="settings-full">
+                    <label class="settings-label">Registered Email</label>
+                    <input type="email" id="settingsEmail" class="login-input" disabled style="background: #e2e8f0; cursor: not-allowed; opacity: 0.7;">
+                    <p style="font-size: 11px; color: #64748b; margin-top: -10px;">Email cannot be changed directly for security reasons.</p>
+                </div>
+                <div class="settings-full">
+                    <label class="settings-label">Security</label>
+                    <div class="pwd-wrap">
+                        <input type="password" id="settingsPassword" class="login-input" placeholder="Set New Password (Optional)">
+                    </div>
+                </div>
+                <div class="settings-full" style="margin-top: 10px;">
+                    <button class="pro-btn btn-full" onclick="saveProfile()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACT SUPPORT BOX -->
+        <div class="form-box" id="contactBox">
+            <h2>Contact Support</h2>
+            <p class="sub">Send us a message, we'll get back to you.</p>
+            <div>
+                <input type="text" id="contactName" class="login-input" placeholder="Your Name">
+                <input type="email" id="contactEmail" class="login-input" placeholder="Your Email">
+                <textarea id="contactMessage" class="login-input" placeholder="How can we help you?" style="height: 100px; resize: none;"></textarea>
+                <button class="pro-btn btn-full" onclick="sendContactMessage()">Send Message</button>
+            </div>
+        </div>
+
+    </div><!-- end #loginPanel -->
+
+    <script src="script.js"></script>
+</body>
+</html>
